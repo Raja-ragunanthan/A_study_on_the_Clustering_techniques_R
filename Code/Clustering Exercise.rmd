@@ -1,0 +1,582 @@
+---
+title: "R Notebook"
+output:
+  pdf_document: default
+  html_notebook: default
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE, message = FALSE, warning = FALSE)
+# Unwanted warning and other messages have been set to FALSE
+knitr::opts_knit$set(root.dir = "C:/Users/raja3/OneDrive/Documents/Foundations data analytics/Project-1")
+# Directory set to the data files path
+```
+
+```{r}
+library(readr)
+library(magrittr)
+library(plotly)
+library(dplyr)
+library(NbClust)
+library(factoextra)
+library(tidyr)
+library(stringr)
+library(ClusterR)
+library(dendextend)
+library(stringr)
+library(tidyr)
+library(NbClust)
+library(clValid)
+library(clusterSim)
+library(data.table)
+```
+
+#Task-1
+```{r}
+Data1 <- read_csv("Data1.csv")
+
+#K-means clustering
+km1 <- kmeans(Data1[,2:4], 7, nstart=30)
+kmf <- cbind(Data1[,2:4],Class=km1$cluster)
+
+#Confusion matrix - Kmeans
+table(Data1$Class,kmf$Class)
+
+#Hierarchical clustering
+hc1 <- hclust(dist(Data1[,2:4]), method = "single")
+dd1 <- as.dendrogram(hc1)
+dd1 <- color_branches(dd1, k=7)
+#dd1 <- set(dd1, "labels_cex", 0.3)
+plot(dd1)
+hc1_Class <- cutree(hc1,7)
+
+#Confusion matrix - Hierarchical
+table(Data1$Class,hc1_Class)
+
+#Plotting the original class
+plot1<-plot_ly(x=kmf$X1, y=kmf$X2, z=kmf$X3, type="scatter3d", mode="markers", color=as.factor(Data1$Class)) %>%
+  layout(title = 'Plot with data points colored based on original class')
+plot1
+
+#Plotting the K-means class
+plot2<-plot_ly(x=kmf$X1, y=kmf$X2, z=kmf$X3, type="scatter3d", mode="markers", color=as.factor(kmf$Class)) %>%
+  layout(title = 'Plot with data points colored based on K-Means output')
+plot2
+
+#Plotting the Hierarchical class
+plot2<-plot_ly(x=kmf$X1, y=kmf$X2, z=kmf$X3, type="scatter3d", mode="markers", color=as.factor(hc1_Class)) %>%
+  layout(title = 'Plot with data points colored based on Hierarchical output')
+plot2
+
+
+#External Validations
+kmeans_validation <- external_validation(Data1$Class,kmf$Class,method = "adjusted_rand_index",
+                                       summary_stats = TRUE) 
+
+hierarchical_validation <- external_validation(Data1$Class,hc1_Class,method = "adjusted_rand_index",
+                                       summary_stats = TRUE)
+
+kmeans_validation
+hierarchical_validation
+```
+
+```{r}
+Data2 <- read_csv("Data2.csv")
+
+#K-means clustering
+km1 <- kmeans(Data2[,2:4], 4, nstart=30)
+kmf <- cbind(Data2[,2:4],Class=km1$cluster)
+
+#Confusion matrix - Kmeans
+table(Data2$Class,kmf$Class)
+
+#Hierarchical clustering(centroid linkage works better)
+hc1 <- hclust(dist(Data2[,2:4]), method = "centroid")
+dd1 <- as.dendrogram(hc1)
+dd1 <- color_branches(dd1, k=4)
+#dd1 <- set(dd1, "labels_cex", 0.3)
+plot(dd1)
+hc1_Class <- cutree(hc1,4)
+
+#Confusion matrix - Hierarchical
+table(Data2$Class,hc1_Class)
+
+#Plotting the original class
+plot1<-plot_ly(x=kmf$X, y=kmf$Y, z=kmf$C, type="scatter3d", mode="markers", color=as.factor(Data2$Class)) %>%
+  layout(title = 'Plot with data points colored based on original class')
+plot1
+
+#Plotting the K-means class
+plot2<-plot_ly(x=kmf$X, y=kmf$Y, z=kmf$C, type="scatter3d", mode="markers", color=as.factor(kmf$Class)) %>%
+  layout(title = 'Plot with data points colored based on K-Means output')
+plot2
+
+#Plotting the Hierarchical class
+plot2<-plot_ly(x=kmf$X, y=kmf$Y, z=kmf$C, type="scatter3d", mode="markers", color=as.factor(hc1_Class)) %>%
+  layout(title = 'Plot with data points colored based on Hierarchical output')
+plot2
+
+#External Validations
+kmeans_validation <- external_validation(Data2$Class,kmf$Class,method = "adjusted_rand_index",
+                                       summary_stats = TRUE) 
+
+hierarchical_validation <- external_validation(Data2$Class,hc1_Class,method = "adjusted_rand_index",
+                                       summary_stats = TRUE)
+
+kmeans_validation
+hierarchical_validation
+```
+
+```{r}
+#Complete linkage works better for this one
+
+Data3 <- read_csv("Data3.csv")
+
+#K-means clustering
+km1 <- kmeans(Data3[,2:4], 4, nstart=30)
+kmf <- cbind(Data3[,2:4],Class=km1$cluster)
+
+#Confusion matrix - Kmeans
+table(Data3$Class,kmf$Class)
+
+#Hierarchical clustering(complete linkage works better)
+hc1 <- hclust(dist(Data3[,2:4]), method = "complete")
+dd1 <- as.dendrogram(hc1)
+dd1 <- color_branches(dd1, k=4)
+#dd1 <- set(dd1, "labels_cex", 0.3)
+plot(dd1)
+hc1_Class <- cutree(hc1,4)
+
+#Confusion matrix - Hierarchical
+table(Data3$Class,hc1_Class)
+
+#Plotting the original class
+plot1<-plot_ly(x=kmf$X1, y=kmf$X2, z=kmf$X3, type="scatter3d", mode="markers", color=as.factor(Data3$Class)) %>%
+  layout(title = 'Plot with data points colored based on original class')
+plot1
+
+#Plotting the K-means class
+plot2<-plot_ly(x=kmf$X1, y=kmf$X2, z=kmf$X3, type="scatter3d", mode="markers", color=as.factor(kmf$Class)) %>%
+  layout(title = 'Plot with data points colored based on K-Means output')
+plot2
+
+#Plotting the Hierarchical class
+plot2<-plot_ly(x=kmf$X1, y=kmf$X2, z=kmf$X3, type="scatter3d", mode="markers", color=as.factor(hc1_Class)) %>%
+  layout(title = 'Plot with data points colored based on Hierarchical output')
+plot2
+
+#External Validations
+kmeans_validation <- external_validation(Data3$Class,kmf$Class,method = "adjusted_rand_index",
+                                       summary_stats = TRUE) 
+
+hierarchical_validation <- external_validation(Data3$Class,hc1_Class,method = "adjusted_rand_index",
+                                       summary_stats = TRUE)
+
+kmeans_validation
+hierarchical_validation
+```
+
+```{r}
+Data4 <- read_csv("Data4.csv")
+
+#K-means clustering
+km1 <- kmeans(Data4[,2:4], 2, nstart=30)
+kmf <- cbind(Data4[,2:4],Class=km1$cluster)
+
+#Confusion matrix - Kmeans
+table(Data4$Class,kmf$Class)
+
+#Hierarchical clustering
+hc1 <- hclust(dist(Data4[,2:4]), method = "single")
+dd1 <- as.dendrogram(hc1)
+dd1 <- color_branches(dd1, k=2)
+#dd1 <- set(dd1, "labels_cex", 0.3)
+plot(dd1)
+hc1_Class <- cutree(hc1,2)
+
+#Confusion matrix - Hierarchical
+table(Data4$Class,hc1_Class)
+
+#Plotting the original class
+plot1<-plot_ly(x=kmf$X1, y=kmf$X2, z=kmf$X3, type="scatter3d", mode="markers", color=as.factor(Data4$Class)) %>%
+  layout(title = 'Plot with data points colored based on original class')
+plot1
+
+#Plotting the K-means class
+plot2<-plot_ly(x=kmf$X1, y=kmf$X2, z=kmf$X3, type="scatter3d", mode="markers", color=as.factor(kmf$Class)) %>%
+  layout(title = 'Plot with data points colored based on K-Means output')
+plot2
+
+#Plotting the Hierarchical class
+plot2<-plot_ly(x=kmf$X1, y=kmf$X2, z=kmf$X3, type="scatter3d", mode="markers", color=as.factor(hc1_Class)) %>%
+  layout(title = 'Plot with data points colored based on Hierarchical output')
+plot2
+
+#External Validations
+kmeans_validation <- external_validation(Data4$Class,kmf$Class,method = "adjusted_rand_index",
+                                       summary_stats = TRUE) 
+
+hierarchical_validation <- external_validation(Data4$Class,hc1_Class,method = "adjusted_rand_index",
+                                       summary_stats = TRUE)
+
+kmeans_validation
+hierarchical_validation
+```
+
+```{r}
+Data5 <- read_csv("Data5.csv")
+
+#K-means clustering
+km1 <- kmeans(Data5[,2:4], 2, nstart=30)
+kmf <- cbind(Data5[,2:4],Class=km1$cluster)
+
+#Confusion matrix - Kmeans
+table(Data5$Class,kmf$Class)
+
+#Hierarchical clustering
+hc1 <- hclust(dist(Data5[,2:4]), method = "single")
+dd1 <- as.dendrogram(hc1)
+dd1 <- color_branches(dd1, k=2)
+#dd1 <- set(dd1, "labels_cex", 0.3)
+plot(dd1)
+hc1_Class <- cutree(hc1,2)
+
+#Confusion matrix - Hierarchical
+table(Data5$Class,hc1_Class)
+
+#Plotting the original class
+plot1<-plot_ly(x=kmf$X1, y=kmf$X2, z=kmf$X3, type="scatter3d", mode="markers", color=as.factor(Data5$Class)) %>%
+  layout(title = 'Plot with data points colored based on original class')
+plot1
+
+#Plotting the K-means class
+plot2<-plot_ly(x=kmf$X1, y=kmf$X2, z=kmf$X3, type="scatter3d", mode="markers", color=as.factor(kmf$Class)) %>%
+  layout(title = 'Plot with data points colored based on K-Means output')
+plot2
+
+#Plotting the Hierarchical class
+plot2<-plot_ly(x=kmf$X1, y=kmf$X2, z=kmf$X3, type="scatter3d", mode="markers", color=as.factor(hc1_Class)) %>%
+  layout(title = 'Plot with data points colored based on Hierarchical output')
+plot2
+
+#External Validations
+kmeans_validation <- external_validation(Data5$Class,kmf$Class,method = "adjusted_rand_index",
+                                       summary_stats = TRUE) 
+
+hierarchical_validation <- external_validation(Data5$Class,hc1_Class,method = "adjusted_rand_index",
+                                       summary_stats = TRUE)
+
+kmeans_validation
+hierarchical_validation
+```
+
+```{r}
+Data6 <- read_csv("Data6.csv")
+#K-means clustering
+
+km1 <- kmeans(Data6[,2:3], 2, nstart=30)
+kmf <- cbind(Data6[,2:3],Class=km1$cluster)
+
+#Confusion matrix - Kmeans
+table(Data6$Class,kmf$Class)
+
+#Hierarchical clustering(complete linkage works better)
+hc1 <- hclust(dist(Data6[,2:3]), method = "complete")
+dd1 <- as.dendrogram(hc1)
+dd1 <- color_branches(dd1, k=2)
+#dd1 <- set(dd1, "labels_cex", 0.3)
+plot(dd1)
+hc1_Class <- cutree(hc1,2)
+
+#Confusion matrix - Hierarchical
+table(Data6$Class,hc1_Class)
+
+#Plotting the original class
+plot1<-plot_ly(x=kmf$X1, y=kmf$X2, mode="markers", color=as.factor(Data6$Class)) %>%
+  layout(title = 'Plot with data points colored based on original class')
+plot1
+
+#Plotting the K-means class
+plot2<-plot_ly(x=kmf$X1, y=kmf$X2, mode="markers", color=as.factor(kmf$Class)) %>%
+  layout(title = 'Plot with data points colored based on K-Means output')
+plot2
+
+#Plotting the Hierarchical class
+plot2<-plot_ly(x=kmf$X1, y=kmf$X2, mode="markers", color=as.factor(hc1_Class)) %>%
+  layout(title = 'Plot with data points colored based on Hierarchical output')
+plot2
+
+#External Validations
+kmeans_validation <- external_validation(Data6$Class,kmf$Class,method = "adjusted_rand_index",
+                                       summary_stats = TRUE) 
+
+hierarchical_validation <- external_validation(Data6$Class,hc1_Class,method = "adjusted_rand_index",
+                                       summary_stats = TRUE)
+
+kmeans_validation
+hierarchical_validation
+```
+
+
+```{r}
+Data7 <- read_csv("Data7.csv")
+
+#K-means clustering
+km1 <- kmeans(Data7[,2:3], 6, nstart=30)
+kmf <- cbind(Data7[,2:3],Class=km1$cluster)
+
+#Confusion matrix - Kmeans
+table(Data7$Class,kmf$Class)
+
+#Hierarchical clustering
+hc1 <- hclust(dist(Data7[,2:3]), method = "single")
+dd1 <- as.dendrogram(hc1)
+dd1 <- color_branches(dd1, k=6)
+#dd1 <- set(dd1, "labels_cex", 0.3)
+plot(dd1)
+hc1_Class <- cutree(hc1,6)
+
+#Confusion matrix - Hierarchical
+table(Data7$Class,hc1_Class)
+
+#Plotting the original class
+plot1<-plot_ly(x=kmf$X1, y=kmf$X2, color=as.factor(Data7$Class)) %>%
+  layout(title = 'Plot with data points colored based on original class')
+plot1
+
+#Plotting the K-means class
+plot2<-plot_ly(x=kmf$X1, y=kmf$X2, color=as.factor(kmf$Class)) %>%
+  layout(title = 'Plot with data points colored based on K-Means output')
+plot2
+
+#Plotting the Hierarchical class
+plot2<-plot_ly(x=kmf$X1, y=kmf$X2, mode="markers", color=as.factor(hc1_Class)) %>%
+  layout(title = 'Plot with data points colored based on Hierarchical output')
+plot2
+
+#External Validations
+kmeans_validation <- external_validation(Data7$Class,kmf$Class,method = "adjusted_rand_index",
+                                       summary_stats = TRUE) 
+
+hierarchical_validation <- external_validation(Data7$Class,hc1_Class,method = "adjusted_rand_index",
+                                       summary_stats = TRUE)
+
+kmeans_validation
+hierarchical_validation
+```
+
+```{r}
+Data8 <- read_csv("Data8.csv")
+#K-means clustering
+
+km1 <- kmeans(Data8[,2:4], 1, nstart=30)
+kmf <- cbind(Data8[,2:4],Class=km1$cluster)
+
+#Confusion matrix - Kmeans
+table(Data8$Class,kmf$Class)
+
+#Hierarchical clustering
+hc1 <- hclust(dist(Data8[,2:4]), method = "single")
+dd1 <- as.dendrogram(hc1)
+dd1 <- color_branches(dd1, k=1)
+#dd1 <- set(dd1, "labels_cex", 0.3)
+plot(dd1)
+hc1_Class <- cutree(hc1,1)
+
+#Confusion matrix - Hierarchical
+table(Data8$Class,hc1_Class)
+
+#Plotting the original class
+plot1<-plot_ly(x=kmf$X1, y=kmf$X2, z=kmf$X3, type="scatter3d", mode="markers", color=as.factor(Data8$Class)) %>%
+  layout(title = 'Plot with data points colored based on original class')
+plot1
+
+#Plotting the K-means class
+plot2<-plot_ly(x=kmf$X1, y=kmf$X2, z=kmf$X3, type="scatter3d", mode="markers", color=as.factor(kmf$Class)) %>%
+  layout(title = 'Plot with data points colored based on K-Means output')
+plot2
+
+#Plotting the Hierarchical class
+plot2<-plot_ly(x=kmf$X1, y=kmf$X2, z=kmf$X3, type="scatter3d", mode="markers", color=as.factor(hc1_Class)) %>%
+  layout(title = 'Plot with data points colored based on Hierarchical output')
+plot2
+
+#External Validations
+kmeans_validation <- external_validation(Data8$Class,kmf$Class,method = "adjusted_rand_index",
+                                       summary_stats = TRUE) 
+
+hierarchical_validation <- external_validation(Data8$Class,hc1_Class,method = "adjusted_rand_index",
+                                       summary_stats = TRUE)
+
+kmeans_validation
+hierarchical_validation
+```
+
+#Task-2
+
+```{r Dataset}
+world_i1 <- read_csv("World Indicators.csv")
+```
+
+```{r Data Cleaning}
+
+world_i1$`Business Tax Rate` <- gsub("%","",world_i1$`Business Tax Rate`)
+world_i1$`Health Exp/Capita` <- substr(world_i1$`Health Exp/Capita`,2,length(world_i1$`Health Exp/Capita`))
+world_i1$GDP <- substr(world_i1$GDP,2,length(world_i1$GDP))
+
+world_i1$GDP <- gsub(",","",world_i1$GDP)
+world_i1$`Health Exp/Capita` <- gsub(",","",world_i1$`Health Exp/Capita`)
+
+world_i1$`Business Tax Rate` <- as.numeric(world_i1$`Business Tax Rate`)
+world_i1$`Health Exp/Capita` <- as.numeric(world_i1$`Health Exp/Capita`)
+world_i1$GDP <- as.numeric(world_i1$GDP)
+
+#Removing the two columns with maximum number of null values and scaling
+
+World_i2 <- world_i1[,-c(4,11)] %>%
+  drop_na()
+df <- data.frame(scale(World_i2[,1:16]))
+```
+
+
+```{r Finding the right number of clusters}
+
+#Finding the optimal number of clusters
+
+#Elbow method
+fviz_nbclust(df[,1:16] , kmeans , method = 'wss')
+
+#Silhoutte method
+fviz_nbclust(df[,1:16] , kmeans , method = 'silhouette')
+```
+
+```{r K means clustering and respective Dunn Index}
+
+#Finding distance
+Dist_KM <- get_dist(df)
+
+#Visualizing the distance values
+fviz_dist(Dist_KM)
+
+#As both the methods show around 2 as the optimal number, we cluster them into two classes below
+km <- kmeans(df[,1:16] , 2 , nstart = 20)
+
+#Visualizing the cluster from k-means
+fviz_cluster(km , data = df[,1:16])
+km$cluster
+df$KM <- km$cluster
+World_i2$KM <- km$cluster
+#Internal validation for k-means - validated using dunn index
+dunn_km <- dunn(clusters = df$KM , Data = df[,1:16])
+
+dunn_km
+km$centers
+
+#Three classes
+km <- kmeans(df[,1:16] , 3 , nstart = 20)
+
+#Visualizing the cluster from k-means
+fviz_cluster(km , data = df[,1:16])
+km$cluster
+
+#Internal validation for k-means - validated using dunn index
+dunn_km <- dunn(clusters = df$KM , Data = df[,1:16])
+
+dunn_km
+km$centers
+
+#Dunn index yields a larger value when k=2 for k-means
+```
+
+```{r Hierarchial Clustering Validation and respective Dunn Index}
+
+#Hierarchical clustering with "single" linkage
+labs <- World_i2$Country[1:171]
+hc.single <- hclust(dist(df[,1:16]) , method = "single")
+dd <- as.dendrogram(hc.single)
+dd <- color_branches(dd, k=2)
+plot(dd)
+plot(hc.single, labels = labs)
+
+#Hierarchical clustering with "average" linkage
+hc.average <- hclust(dist(df[,1:16]) , method = "average")
+dd <- as.dendrogram(hc.average)
+dd <- color_branches(dd, k=2)
+plot(dd)
+plot(hc.average, labels = labs)
+
+#Hierarchical clustering with "complete" linkage
+hc.complete <- hclust(dist(df[,1:16]) , method = "complete")
+dd <- as.dendrogram(hc.complete)
+dd <- color_branches(dd, k=2)
+plot(dd)
+plot(hc.complete, labels = labs)
+
+#Internal validation for Hierarchical clustering
+#Two clusters
+Dist <- dist(df[,1:16] , method = 'euclidean')
+nc_1 <- 2
+hc_cluster1 <- cutree(hc.complete,nc_1)
+dunn(Dist, hc_cluster1)
+df$hc_cluster <- hc_cluster1
+World_i2$hc_cluster <- hc_cluster1
+#Three clusters
+Dist <- dist(df[,1:16] , method = 'euclidean')
+nc_1 <- 3
+hc_cluster1 <- cutree(hc.complete,nc_1)
+
+dunn(Dist, hc_cluster1)
+
+#Dunn index yields a larger value when k=3 for hierarchical clustering
+```
+
+#Overall, the best result is obtained with hierarchical clustering with k=3 (validated using dunn index). Hence using the same to categorize the countries
+```{r Hierarchial Clustering split into respective clusters}
+
+df_cluster_1 <- subset(World_i2 , hc_cluster1 == 1)
+df_cluster_2 <- subset(World_i2 , hc_cluster1 == 2)
+df_cluster_3 <- subset(World_i2 , hc_cluster1 == 3)
+
+#Countries in each group
+c1 <- df_cluster_1$Country
+c2 <- df_cluster_2$Country
+c3 <- df_cluster_3$Country
+internal_validation <- clValid(df[,1:16],2:7,clMethods=c("hierarchical","kmeans"),validation="internal")
+summary(internal_validation)
+plot(internal_validation)
+```
+
+#Plotting
+
+#We have decided to find the correlation between each column and use the columns that have large correlation value for ploting and colored them based on clasees
+
+```{r}
+#correlation function
+cor(World_i2[,1:16])
+```
+
+#Plot1
+#Population 0-14 and birthrate seems to have large correlation
+```{r}
+plot1<-plot_ly(x=World_i2$`Birth Rate`, y=World_i2$`Population 0-14`, mode="markers", color=as.factor(World_i2$hc_cluster)) %>%
+  layout(title = 'Birthrate vs Population 0-14')
+plot1
+```
+
+#Plot2
+#Life expectancy female and birthrate seems to have a correlation
+```{r}
+plot2<-plot_ly(x=World_i2$`Birth Rate`, y=World_i2$`Life Expectancy Female`, mode="markers", color=as.factor(World_i2$hc_cluster)) %>%
+  layout(title = 'Birthrate vs Life expectancy female')
+plot2
+```
+
+#Plot3
+#Health Exp/Capita and internet usage also looks like there is a correlation
+```{r}
+plot3<-plot_ly(x=World_i2$`Health Exp/Capita`, y=World_i2$`Internet Usage`, mode="markers", color=as.factor(World_i2$hc_cluster)) %>%
+  layout(title = 'Health Exp/Capita vs Internet usage')
+plot3
+```
+
+
